@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <link rel="icon" href="static/img/favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@8/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="static/css/templatemo-style.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link rel="stylesheet" href="static/css/fruit.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <button class="home-button" onclick="location.href='/move'">
+        <i class="fas fa-home"></i>
+      </button>
+
+      <div class="weather" id="weather">
+        <div class="city-name" id="city-name"></div>
+        <img id="weather-icon" src="" alt="Weather Icon" />
+        <span id="temperature"></span>
+      </div>
+
+      <div class="today" id="today"></div>
+      <div class="clock"></div>
+
+      <div class="m-container">
+        <div class="mic-button">
+          <div class="mic-button-loader"></div>
+          <i class="fas fa-microphone"></i>
+        </div>
+
+        <div class="waveContainer">
+          <div class="wave wave1"></div>
+          <div class="wave wave2"></div>
+          <div class="wave wave3"></div>
+          <div class="wave wave4"></div>
+          <div class="wave wave5"></div>
+          <div class="wave wave6"></div>
+          <div class="wave wave7"></div>
+          <div class="wave wave8"></div>
+          <div class="wave wave9"></div>
+          <div class="wave wave10"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="gauge">
+          <div class="gauge-bar" style="width: 62.5%"></div>
+          <div class="gauge-text">적재량: 250kg / 400kg</div>
+        </div>
+
+        <div class="toggle">
+          <img
+            src="https://cdn.pixabay.com/photo/2016/06/14/10/16/persimmons-1456186_1280.jpg"
+            alt="Persimmon"
+            class="toggle-img"
+          />
+        </div>
+        <div class="toggle1">
+          <table>
+            <tr>
+              <td>감 무게</td>
+              <td>평균 180~200g</td>
+            </tr>
+            <tr>
+              <td>품질 상태</td>
+              <td>좋음</td>
+            </tr>
+            <tr>
+              <td>수확 날짜</td>
+              <td>2024-10-20</td>
+            </tr>
+            <tr>
+              <td>산지</td>
+              <td>경북 상주</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="subtitle" id="subtitle">
+        현재 적재량은 250kg이고, 감 한 개 200g 기준 750개 더 실을 수 있습니다.
+      </div>
+    </div>
+
+    <script src="static/js/move.js"></script>
+
+    <script>
+      const clock = document.querySelector(".clock");
+      const today = document.querySelector(".today");
+      const subtitleElement = document.getElementById("subtitle");
+
+      function getClock() {
+        const date = new Date();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+
+        clock.innerText = `${hours}:${minutes}:${seconds} `;
+      }
+
+      getClock();
+      setInterval(getClock, 1000);
+
+      function getToday() {
+        const todaydate = new Date();
+        const days = ["(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)"];
+        const days_num = todaydate.getDay();
+
+        const year = todaydate.getFullYear();
+        const month = todaydate.getMonth() + 1;
+        const date = todaydate.getDate();
+        const day = days[days_num];
+
+        today.innerText = `${year} / ${month} / ${date} ${day}`;
+      }
+
+      getToday();
+
+      function playWelcomeVoice() {
+        try {
+          const message =
+            "현재 적재량은 250kg이고, 감 한 개 200그램 기준 750개 더 실을 수 있습니다.";
+          const utterance = new SpeechSynthesisUtterance(message);
+
+          subtitleElement.style.display = "block";
+
+          utterance.onend = () => {
+            subtitleElement.style.display = "none";
+          };
+
+          window.speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.error("Error in playWelcomeVoice:", error);
+        }
+      }
+
+      function fetchWeather() {
+        const apiKey = "2dc3123de16c3df61202dc8b4f9b0277";
+        const lat = 37.6588; // Latitude for Ilsandong-gu
+        const lon = 126.7686; // Longitude for Ilsandong-gu
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+        fetch(apiUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            const temperature = data.main.temp.toFixed(1);
+            const iconCode = data.weather[0].icon;
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+            const cityName = "Ilsandong-gu, Goyang"; // Custom city name display
+
+            document.getElementById(
+              "temperature"
+            ).innerText = `${temperature}°C`;
+            document.getElementById("weather-icon").src = iconUrl;
+            document.getElementById("city-name").innerText = cityName;
+          })
+          .catch((error) =>
+            console.error("Error fetching weather data:", error)
+          );
+      }
+
+      window.onload = function () {
+        fetchWeather();
+        playWelcomeVoice();
+      };
+    </script>
+  </body>
+</html>
